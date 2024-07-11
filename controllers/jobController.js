@@ -116,8 +116,16 @@ const getUsersAppliedJobs = async (req, res) => {
     const user = await USER.findById({ _id: userId }).populate(
       "jobsApplied.job"
     );
-    const appliedJobs = user.jobsApplied.sort((a,b)=>b.dateApplied-a.dateApplied);
-    res.status(200).json({ success: true, numofJobs:appliedJobs.length, jobs: appliedJobs });
+    const appliedJobs = user.jobsApplied.sort(
+      (a, b) => b.dateApplied - a.dateApplied
+    );
+    res
+      .status(200)
+      .json({
+        success: true,
+        numofJobs: appliedJobs.length,
+        jobs: appliedJobs,
+      });
   } catch (error) {
     console.log(error);
     res.json(error.message);
@@ -153,6 +161,17 @@ const updateJobStatus = async (req, res) => {
   }
 };
 
+const getUniqueLocations = async (req, res) => {
+  try {
+    const jobLocations = await JOB.find().select("location");
+    const uniqueLocations = [
+      ...new Set(jobLocations.map((job) => job.location)),
+    ].sort();
+    res.status(200).json({ success: true, location: uniqueLocations });
+  } catch (error) {
+    console.log(error);
+  }
+};
 module.exports = {
   getAllJobs,
   getLatestJobs,
@@ -161,4 +180,5 @@ module.exports = {
   applyForJob,
   getUsersAppliedJobs,
   updateJobStatus,
+  getUniqueLocations
 };
