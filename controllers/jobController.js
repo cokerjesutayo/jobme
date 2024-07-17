@@ -64,7 +64,6 @@ const getSingleJob = async (req, res) => {
     // Find similar jobs based on jobTitle or mode, excluding the current job
     const similarJobs = await JOB.find({
       _id: { $ne: jobId }, // Exclude the current job
-      // $ne-not equal tooo
       industry: job.industry,
     })
       .sort("-createdAt")
@@ -123,7 +122,7 @@ const getUsersAppliedJobs = async (req, res) => {
       .status(200)
       .json({
         success: true,
-        numofJobs: appliedJobs.length,
+        numOfJobs: appliedJobs.length,
         jobs: appliedJobs,
       });
   } catch (error) {
@@ -160,19 +159,33 @@ const updateJobStatus = async (req, res) => {
     res.status(error?.code || 500).json(error.message);
   }
 };
-
 const getUniqueLocations = async (req, res) => {
   try {
     const jobLocations = await JOB.find().select("location");
+    const jobIndustries = await JOB.find().select("industry");
+
     const uniqueLocations = [
       ...new Set(jobLocations.map((job) => job.location)),
     ].sort();
-    res.status(200).json({ success: true, location: uniqueLocations });
+
+    const uniqueIndustries = [
+      ...new Set(jobIndustries.map((job) => job.industry)),
+    ].sort();
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        location: uniqueLocations,
+        industries: uniqueIndustries,
+      });
   } catch (error) {
     console.log(error);
   }
 };
+
 module.exports = {
+  getUniqueLocations,
   getAllJobs,
   getLatestJobs,
   getSingleJob,
@@ -180,5 +193,4 @@ module.exports = {
   applyForJob,
   getUsersAppliedJobs,
   updateJobStatus,
-  getUniqueLocations
 };
